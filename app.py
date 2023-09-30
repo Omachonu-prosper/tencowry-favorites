@@ -28,12 +28,41 @@ except Exception as e:
 
 client = MongoClient(uri)
 db = client['test']
-categories = db['favorites']
+favorites = db['favorites']
 
 
 @app.route('/user/favorites/add', strict_slashes=False, methods=['POST'])
 def add_favorite():
-    return 'Under construction'
+    # Validate payload
+    data = request.json
+    product_id = int(data.get('product-id', None))
+
+    if product_id is None:
+        return jsonify({
+            'message': 'Missing payload: product-id is required',
+            'status': False
+        }), 400
+    
+    # Check for duplicates
+    duplicate = list(favorites.find({'product_id': product_id}))
+    if duplicate:
+        return jsonify({
+            'message': 'Duplicate: product already added to favorites',
+            'status': False
+        }), 409
+    
+    # Add product to favorites
+    add = favorites.insert_one({'product_id': product_id})
+    if add.acknowledged:
+        return jsonify({
+            'message': 'Success: product added to favorites',
+            'status': True
+        }), 201
+    else:
+        return jsonify({
+            'message': 'Failure: failed to add product to favorites',
+            'status': False
+        }), 422
 
 
 @app.route('/user/favorites/remove/<product_id>', strict_slashes=False, methods=['DELETE'])
