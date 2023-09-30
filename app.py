@@ -28,23 +28,24 @@ except Exception as e:
 
 client = MongoClient(uri)
 db = client['test']
-favorites = db['favorites']
+users = db['users']
 
 
 @app.route('/user/favorites/add', strict_slashes=False, methods=['POST'])
 def add_favorite():
     # Validate payload
     data = request.json
-    product_id = int(data.get('product-id', None))
+    product_id = data.get('product-id', None)
 
     if product_id is None:
         return jsonify({
             'message': 'Missing payload: product-id is required',
             'status': False
-        }), 400
-    
+        }), 400    
+    product_id = int(product_id)
+
     # Check for duplicates
-    duplicate = list(favorites.find({'product_id': product_id}))
+    duplicate = users.find_one({'favorites': product_id})
     if duplicate:
         return jsonify({
             'message': 'Duplicate: product already added to favorites',
@@ -52,8 +53,8 @@ def add_favorite():
         }), 409
     
     # Add product to favorites
-    add = favorites.insert_one({'product_id': product_id})
-    if add.acknowledged:
+    add = users.update_one({'user_id': 'user-1'}, {'$push': {'favorites': product_id}})
+    if add.modified_count:
         return jsonify({
             'message': 'Success: product added to favorites',
             'status': True
@@ -65,9 +66,19 @@ def add_favorite():
         }), 422
 
 
-@app.route('/user/favorites/remove/<product_id>', strict_slashes=False, methods=['DELETE'])
+@app.route('/user/favorites/remove/<int:product_id>', strict_slashes=False, methods=['DELETE'])
 def delete_favorite(product_id):
-    return 'Under construction'
+    delete = users.update_one({"user_id": 'user-1'}, {'$pull': {'favorites': product_id}})
+    if delete.modified_count:
+        return jsonify({
+            'message': 'Success: product removed from favorites',
+            'status': True
+        }), 200
+    else:
+        return jsonify({
+            'message': 'Not found: product not in favorites',
+            'status': False
+        }), 404
 
 
 @app.route('/user/favorites/all', strict_slashes=False)
