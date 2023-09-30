@@ -2,7 +2,6 @@ import os
 
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
-from datetime import datetime
 from dotenv import load_dotenv
 from flask_cors import CORS
 
