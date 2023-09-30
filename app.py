@@ -32,16 +32,31 @@ db = client['test']
 categories = db['favorites']
 
 
+@app.route('/user/favorites/add', strict_slashes=False, methods=['POST'])
+def add_favorite():
+    return 'Under construction'
+
+
+@app.route('/user/favorites/remove/<product_id>', strict_slashes=False, methods=['DELETE'])
+def delete_favorite(product_id):
+    return 'Under construction'
+
+
+@app.route('/user/favorites/all', strict_slashes=False)
+def get_all_favorites():
+    return 'Under construction'
+
+
 @app.route('/', strict_slashes=False)
 def index():
-      return jsonify({
-            'message': 'Tencowry Favorites',
-            'status': True
-      }), 200
+    return jsonify({
+        'message': 'Tencowry Favorites',
+        'status': True
+    }), 200
 
 
 if __name__ == '__main__':
-	if os.environ.get('APP_STATUS') == 'production':
-		app.run()
-	else:
-		app.run(debug=True)
+    if os.environ.get('APP_STATUS') == 'production':
+        app.run()
+    else:
+        app.run(debug=True)
