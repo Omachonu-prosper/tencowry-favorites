@@ -29,6 +29,7 @@ except Exception as e:
 client = MongoClient(uri)
 db = client['test']
 users = db['users']
+products = db['products']
 
 
 @app.route('/user/favorites/add', strict_slashes=False, methods=['POST'])
@@ -83,7 +84,17 @@ def delete_favorite(product_id):
 
 @app.route('/user/favorites/all', strict_slashes=False)
 def get_all_favorites():
-    return 'Under construction'
+    fav_product_ids = users.find_one({'user_id': 'user-1'}, {'favorites': 1, '_id': 0})
+    if not fav_product_ids:
+        return jsonify({
+            'message': 'Empty: user has no saved favorites',
+            'status': True
+        }), 200
+    
+    fav_products = products.find({'product_id': {'$in': fav_product_ids['favorites']}}, {'_id': 0})
+    return jsonify({
+        'favorites': list(fav_products)
+    }), 200
 
 
 @app.route('/', strict_slashes=False)
