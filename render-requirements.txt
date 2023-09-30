@@ -1,0 +1,12 @@
+blinker
+click
+colorama
+dnspython
+Flask
+Flask-Cors
+itsdangerous
+Jinja2
+MarkupSafe
+pymongo
+python-dotenv
+Werkzeug
