@@ -105,10 +105,12 @@ def get_all_favorites():
             'message': 'Empty: user has no saved favorites',
             'status': True
         }), 200
-    
+
     fav_products = products.find({'product_id': {'$in': fav_product_ids['favorites']}}, {'_id': 0})
     return jsonify({
-        'favorites': list(fav_products)
+        'message': 'Success: fetched users favorites',
+        'status': True,
+        'data': list(fav_products)
     }), 200
 
 
