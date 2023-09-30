@@ -43,7 +43,14 @@ def add_favorite():
             'message': 'Missing payload: product-id is required',
             'status': False
         }), 400    
-    product_id = int(product_id)
+    
+    try:
+        product_id = int(product_id)
+    except:
+        return jsonify({
+            'message': 'Invalid payload: product-id should be of type integer',
+            'status': False
+        }), 400
 
     # Check for duplicates
     duplicate = users.find_one({'favorites': product_id})
@@ -52,6 +59,14 @@ def add_favorite():
             'message': 'Duplicate: product already added to favorites',
             'status': False
         }), 409
+    
+    # Don't add to favorites if product doesn't exist
+    product = products.find_one({'product_id': product_id})
+    if not product:
+        return jsonify({
+            'message': 'Not found: product-id does not belong to any products',
+            'status': False
+        }), 404
     
     # Add product to favorites
     add = users.update_one({'user_id': 'user-1'}, {'$push': {'favorites': product_id}})
